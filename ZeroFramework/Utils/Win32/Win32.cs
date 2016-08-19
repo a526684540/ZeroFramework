@@ -69,6 +69,9 @@ namespace ZeroFramework.Utils
         [DllImport("kernel32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern IntPtr GetModuleHandle(string name);
 
+        [DllImport(ExternDll.Kernel32, ExactSpelling = true, CharSet = CharSet.Ansi)]
+        public static extern IntPtr GetProcAddress(HandleRef hModule, string lpProcName);
+
         #endregion
 
         #region User32.dll functions
@@ -81,6 +84,24 @@ namespace ZeroFramework.Utils
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         static public extern bool ShowWindow(IntPtr hWnd, short State);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
+
+        [DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
+        public static extern int EnableWindow(IntPtr hwnd, bool bEnable);
+
+        [DllImport(ExternDll.User32, CharSet = CharSet.Auto, ExactSpelling = true)]
+        public static extern void PostQuitMessage(int nExitCode);
+
+        [DllImport(ExternDll.User32, EntryPoint = "SystemParametersInfo")]
+        public static extern int SystemParametersInfo(
+         int uAction,
+         int uParam,
+         string lpvParam,
+         int fuWinIni
+         );
+
+        [DllImport(ExternDll.User32)]
+        public static extern bool AdjustWindowRectEx(ref RECT lpRect, int dwStyle, bool bMenu, int dwExStyle);
+
         static public extern bool UpdateWindow(IntPtr hWnd);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         static public extern bool SetForegroundWindow(IntPtr hWnd);
@@ -137,7 +158,7 @@ namespace ZeroFramework.Utils
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public extern static IntPtr GetDlgItem(IntPtr hDlg, int nControlID);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public extern static int GetClientRect(IntPtr hWnd, ref RECT rc);
+        public extern static bool GetClientRect(IntPtr hWnd, ref RECT rc);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public extern static int InvalidateRect(IntPtr hWnd, IntPtr rect, int bErase);
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
@@ -223,6 +244,20 @@ namespace ZeroFramework.Utils
         [DllImport(ExternDll.User32, CharSet = CharSet.Auto, EntryPoint = "SetWindowLongPtr")]
         private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, int dwNewLong);
 
+        public static IntPtr SetWindowLong(HWND hWnd, int nIndex, IntPtr wndproc)
+        {
+            if (IntPtr.Size == 4)
+            {
+                return SetWindowLongPtr32(hWnd, nIndex, wndproc);
+            }
+            return SetWindowLongPtr64(hWnd, nIndex, wndproc);
+        }
+
+        [DllImport(ExternDll.User32, CharSet = CharSet.Auto, EntryPoint = "SetWindowLong")]
+        private static extern IntPtr SetWindowLongPtr32(HWND hWnd, int nIndex, IntPtr wndproc);
+        [DllImport(ExternDll.User32, CharSet = CharSet.Auto, EntryPoint = "SetWindowLongPtr")]
+        private static extern IntPtr SetWindowLongPtr64(HWND hWnd, int nIndex, IntPtr wndproc);
+
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr GetDCEx(IntPtr hWnd, IntPtr hRegion, uint flags);
 
@@ -282,7 +317,7 @@ namespace ZeroFramework.Utils
         static public extern int ScrollWindowEx(IntPtr hWnd, int dx, int dy,
             ref RECT rcScroll, ref RECT rcClip, IntPtr UpdateRegion, ref RECT rcInvalidated, uint flags);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern int IsWindow(IntPtr hWnd);
+        public static extern bool IsWindow(IntPtr hWnd);
         [DllImport("user32", CharSet = CharSet.Auto)]
         public static extern int GetKeyboardState(byte[] pbKeyState);
         [DllImport("user32")]
@@ -296,7 +331,7 @@ namespace ZeroFramework.Utils
         public static extern HWND CreateWindowEx(
             DWORD dwExStyle, LPCTSTR lpClassName, LPCTSTR lpWindowName,
             DWORD dwStyle, Int32 x, Int32 y, Int32 nWidth, Int32 nHeight,
-            HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+            HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, [MarshalAs(UnmanagedType.AsAny)] object pvParam);
 
         [DllImport("user32.dll")]
         public static extern ATOM RegisterClassEx(ref WNDCLASSEX lpwcx);
@@ -442,6 +477,20 @@ namespace ZeroFramework.Utils
         public static int HIGH_ORDER(int param)
         {
             return (param >> 16);
+        }
+
+        #endregion
+
+        #region Extend
+
+        public static DWORD GetWindowStyle(HWND hwnd)
+        {
+            return (DWORD)NativeMethods.GetWindowLong(hwnd, SetWindowLongOffsets.GWL_STYLE);
+        }
+
+        public static DWORD GetWindowExStyle(HWND hwnd)
+        {
+            return (DWORD)NativeMethods.GetWindowLong(hwnd, SetWindowLongOffsets.GWL_EXSTYLE);
         }
 
         #endregion

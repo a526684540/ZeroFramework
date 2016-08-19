@@ -23,6 +23,7 @@ using ZeroFramework.DirectUI;
 
 namespace ZeroDemo
 {
+    using System.Runtime.InteropServices;
     using ZeroFramework.Utils;
 
     public partial class Form3 : Form
@@ -31,7 +32,7 @@ namespace ZeroDemo
 
         public Form3()
         {
-            t = new DuiHostBase(this);            
+            t = new DuiHostBase(this);
             InitializeComponent();
             //this.HandleCreated += userControl11_HandleCreated;
             //this.HandleDestroyed += userControl11_HandleDestroyed;
@@ -57,15 +58,25 @@ namespace ZeroDemo
         {
             Form3 frm = new Form3();
             frm.Show();
+
+
         }
 
         protected override void WndProc(ref Message m)
         {
             switch (m.Msg)
             {
-                case WindowMessages.WM_CREATE:
+                //case WindowMessages.WM_CREATE:
+                //    break;
+                case WindowMessages.WM_NCCREATE:
+                    //var gch = GCHandle.FromIntPtr(m.LParam);
+                    //var lpcs = (LPCREATESTRUCT)gch.Target;
+                    var lpcs = (LPCREATESTRUCT)Marshal.PtrToStructure(m.LParam, typeof(LPCREATESTRUCT));
+                    var lpcs2 = m.GetLParam(typeof(LPCREATESTRUCT));
+                    base.WndProc(ref m);
                     break;
                 default:
+                    base.WndProc(ref m);
                     break;
             }
 

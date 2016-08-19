@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ZeroFramework.DirectUI
 {
@@ -45,7 +46,6 @@ namespace ZeroFramework.DirectUI
     using HDC = System.IntPtr;
     using HGDIOBJ = System.IntPtr;
     using HBITMAP = System.IntPtr;
-    using HDC = System.IntPtr;
     using HPEN = System.IntPtr;
 
     #endregion
@@ -105,7 +105,7 @@ namespace ZeroFramework.DirectUI
 
         ~DuiUIManager()
         {
-            if (m_hDcPaint != NativeMethods.Handle_NULL)
+            if (m_hDcPaint != NativeMethods.NULL)
                 NativeMethods.ReleaseDC(m_hWndPaint, m_hDcPaint);
             m_aPreMessages.Remove(this);
         }
@@ -209,7 +209,8 @@ namespace ZeroFramework.DirectUI
                         var dwExStyle = NativeMethods.GetWindowLong(m_hWndPaint, SetWindowLongOffsets.GWL_EXSTYLE);
                         if ((dwExStyle.ToInt32() & WindowStyles.WS_EX_LAYERED) != 0x80000)
                         {
-                            NativeMethods.SetWindowLong(m_hWndPaint, (int)SetWindowLongOffsets.GWL_EXSTYLE, dwExStyle.ToInt32() ^ WindowStyles.WS_EX_LAYERED);
+                            NativeMethods.SetWindowLong(m_hWndPaint, (int)SetWindowLongOffsets.GWL_EXSTYLE,
+                                dwExStyle.ToInt32() ^ WindowStyles.WS_EX_LAYERED);
                         }
 
                         RECT rcClient = new RECT();
@@ -413,7 +414,7 @@ namespace ZeroFramework.DirectUI
             MSG msg = new MSG();
             while (NativeMethods.GetMessage(ref msg, IntPtr.Zero, 0, 0))
             {
-                if (!DuiUIManager.TranslateMessage(msg))
+                if (!DuiUIManager.TranslateMessage(ref msg))
                 {
                     NativeMethods.TranslateMessage(ref msg);
                     try
@@ -435,7 +436,7 @@ namespace ZeroFramework.DirectUI
             }
         }
 
-        public static bool TranslateMessage(MSG msg)
+        public static bool TranslateMessage(ref MSG msg)
         {
             IntPtr uStyle = NativeMethods.GetWindowLong(msg.hwnd, SetWindowLongOffsets.GWL_STYLE);
             int uChildRes = uStyle.ToInt32() & WindowMessages.WS_CHILD;
@@ -486,6 +487,16 @@ namespace ZeroFramework.DirectUI
             }
 
             return false;
+        }
+
+        public static HINSTANCE GetInstance()
+        {
+            return m_hInstance;
+        }
+
+        public static void SetInstance(HINSTANCE hInst)
+        {
+            m_hInstance = hInst;
         }
 
         #endregion

@@ -281,8 +281,9 @@ namespace ZeroDemo
 
         private void button2_Click(object sender, EventArgs e)
         {
-            CustomWindow wind = new CustomWindow("aaa");
-
+            CustomWindow wind = new CustomWindow("test");
+            ShowWindow(wind.m_hwnd, 1);
+            UpdateWindow(wind.m_hwnd); 
         }
     }
 }

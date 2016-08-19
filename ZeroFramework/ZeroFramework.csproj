@@ -43,7 +43,6 @@
     <Compile Include="DirectUI\Animations\TEffectAge.cs" />
     <Compile Include="DirectUI\Control\DuiControlBase.cs" />
     <Compile Include="DirectUI\Core\DuiHost\DuiHostBase.cs" />
-    <Compile Include="DirectUI\Core\DuiHost\DuiHostControl.cs" />
     <Compile Include="DirectUI\Core\DuiHost\DuiHostFormBase.cs" />
     <Compile Include="DirectUI\Core\DuiHost\DuiHostWindowImp.cs" />
     <Compile Include="DirectUI\Core\DuiUIManager.cs" />

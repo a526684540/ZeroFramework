@@ -14,7 +14,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using ZeroFramework.Utils;
 
 namespace ZeroDemo
 {
@@ -78,7 +80,7 @@ namespace ZeroDemo
         private const int ERROR_CLASS_ALREADY_EXISTS = 1410;
 
         private bool m_disposed;
-        private IntPtr m_hwnd;
+        public IntPtr m_hwnd;
 
         public void Dispose()
         {
@@ -126,7 +128,8 @@ namespace ZeroDemo
             {
                 throw new System.Exception("Could not register window class");
             }
-
+            GCHandle gc = GCHandle.Alloc(this, GCHandleType.WeakTrackResurrection);
+            var p = GCHandle.ToIntPtr(gc);
             // Create window
             m_hwnd = CreateWindowExW(
                 0,
@@ -140,12 +143,29 @@ namespace ZeroDemo
                 IntPtr.Zero,
                 IntPtr.Zero,
                 IntPtr.Zero,
-                IntPtr.Zero
+                p
             );
         }
 
-        private static IntPtr CustomWndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+        private IntPtr CustomWndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
+            switch (msg)
+            {
+                //case WindowMessages.WM_CREATE:
+                //    break;
+                case WindowMessages.WM_NCCREATE:
+                    //var gch = GCHandle.FromIntPtr(m.LParam);
+                    //var lpcs = (LPCREATESTRUCT)gch.Target;
+                    var lpcs = (LPCREATESTRUCT)Marshal.PtrToStructure(lParam, typeof(LPCREATESTRUCT));
+                    var message = System.Windows.Forms.Message.Create(hWnd, (int)msg, (IntPtr)wParam, (IntPtr)lParam);
+                    var gc = GCHandle.FromIntPtr((IntPtr)lpcs.lpCreateParams);
+                    var cw = gc.Target as CustomWindow;
+                    var lpcs2 = message.GetLParam(typeof(LPCREATESTRUCT));
+                    break;
+                default:
+                    break;
+            }
+
             return DefWindowProcW(hWnd, msg, wParam, lParam);
         }
 

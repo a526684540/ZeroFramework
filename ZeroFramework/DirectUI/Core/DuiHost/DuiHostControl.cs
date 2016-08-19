@@ -5,7 +5,7 @@
 * 命名空间：    ZeroFramework.DirectUI.Core.DuiHost
 * 文件名  ：    DuiHostControl
 * 创建时间：    2016/7/18 16:32:19
-* 作    者：   
+* 作    者：    
 * 说    明：
 * 修改时间：
 * 修 改 人：

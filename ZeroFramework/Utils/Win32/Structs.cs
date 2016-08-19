@@ -20,6 +20,7 @@ namespace ZeroFramework.Utils
     #region 命名控件转译
 
     using LPCTSTR = System.String;
+    using LPCWSTR = System.String;
     using ATOM = System.UInt16;
     using WORD = System.UInt16;
     using BYTE = System.UInt16;
@@ -632,5 +633,24 @@ namespace ZeroFramework.Utils
         public String lpszMenuName;
         public String lpszClassName;
         public HICON hIconSm;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct LPCREATESTRUCT
+    {
+        public LPVOID lpCreateParams;
+        public HINSTANCE hInstance;
+        public HMENU hMenu;
+        public HWND hwndParent;
+        public int cy;
+        public int cx;
+        public int y;
+        public int x;
+        public long style;
+        [MarshalAs(UnmanagedType.LPWStr)]
+        public LPCWSTR lpszName;
+        [MarshalAs(UnmanagedType.LPWStr)]
+        public LPCWSTR lpszClass;
+        public DWORD dwExStyle;
     }
 }
